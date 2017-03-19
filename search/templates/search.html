@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block content %}
+<form action="" method="post">
+    {% csrf_token %}
+    {{ form }}
+    <input type="submit" value="Submit" />
+</form>
+
+<h3>Your search returned {{ result_count }} result{{ result_count|pluralize }}</h3>
+<p>(Only {{ search_limit }} values from this count above have been returned.)</p>
+<table class="table table-bordered">
+  <tbody>
+  {% for item in search_results %}
+    <tr>
+        <td>
+          {% for image in item.images %}
+            {% if image.height == 64 and image.width == 64 %}
+              <a target="_blank" href="{{ item.external_urls.spotify }}">
+                <img src="{{image.url}}">
+              </a>
+            {% endif %}
+          {% endfor %}
+        </td>
+        <td>
+          <a target="_blank" href="{{ item.external_urls.spotify }}">
+           {{ item.name }}
+          </a>
+        </td>
+      </tr>
+  {% empty %}
+  <tr><td>Sorry, no results found.</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+
+
+{% if result_count %}
+<ul class="pagination">
+    {% if search_results.has_previous %}
+      <li><a href="?page={{ search_results.previous_page_number }}">previous</a></li>
+    {% endif %}
+    <li class="active">
+      <a>Page {{ search_results.number }} of {{ search_results.paginator.num_pages }}.</a>
+    </li>
+    {% if search_results.has_next %}
+      <li><a href="?page={{ search_results.next_page_number }}">next</a></li>
+    {% endif %}
+</ul>
+{% endif %}
+
+{% endblock %}
